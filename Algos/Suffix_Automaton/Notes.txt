@@ -1,0 +1,48 @@
+The suffix automaton of string S is such minimal automaton that accepts all suffixes of s and only them.
+Minimal means minimum amount of states.
+
+We'll see it as a DAG. Vertices will be called states and each edge will be a transition between states.
+
+Notation: 
+-q0 is the initial state.
+-A state q accepts string s if there's a path from q0 to q such that the symbols from the transitions in the path form exactly s.
+
+
+If two strings a, b are accepted by the same state q, then, for any string x, ax and bx are both accepted or are both rejected by the automaton.
+Hence each state q has a set X(q) called the right context of q, the set of strings s such that s leads from q to a final state.
+Each state corresponds to the right context of some substrings, therefore the number of states is not less than the number of different right contexts among all substrings of S. 
+On the other hand, if we have two distinct states q1 and q2 such that X(q1) = X(q2) then we can fuse both states into a single state and the new automaton will be equivalent.
+Thus, in our suffix automaton, all states have different right contexts and we have a state for each right context among all substrings.
+
+Easy to see that the right context X(a) of string a corresponds to the set of right positions of a in S.
+Thus a state q accepts exactly the strings s with the same set of right positions in S.
+
+
+We can note the following facts:
+-If two strings a and b are accepted by the same state q and |a| < |b|, then a is suffix of b.
+-If strings a and b are accepted by state q and |a| < |b|, then state q also
+accepts all strings c such that |a| < |c| < |b| and c is the suffix of b.
+-Given strings a and b such that |a|<=|b|, then
+    - X(b) ⊆ X(a) if a is suffix of b
+    or
+    - X(a) ∩ X(b) = ∅ otherwise.
+
+
+Let long(q) and short(q) denote the longest and shortest string accepted by state q. As we saw, short(q) is a suffix of long(q) and q accepts exactly the strings s, suffixes of long(q) such that |short(q)| <= |s| <= |long(q)|.
+We'll define len(q) as the length of long(q), and link(q) will lead from q to the state that accepts the longest suffix of long(q) that's not accepted by q, this is, the longest proper suffix of short(q).
+Hence |short(q)| = len(link(q)) + 1.
+
+Suppose we have the suffix automaton for string s, and s is accepted by state qlast. We want to update the automaton to be the suffix automaton of sc.
+Let's add a new state qnew that accepts the whole string sc. Obviously the set of right positions of sc is just the end of the string itself, this means that qnew should accept the suffixes of sc that occur only at the end of the string. All these suffixes can be obtained from the suffixes of s accepted by states from which there there are no transitions with symbol c. Thus we can visit all the desired states adding the new c-transition to qnew by jumping over the suffix links, starting from qlast until we reach q0 or reach a state which already have a c-transition.
+- If we get to the root, we know that every nonempty suffix of sc is accepted by qnew, hence we can make link(qnew) = q0.
+- Otherwise, we reach a state p (p!=q0) which already has a c-transition.
+    This implies that all suffixes of sc with length <= len(p)+1 are already accepted by the automaton, and shouldn't be accepted by qnew. We still need to find link(qnew). The longest string accepted by this desired state should be len(p)+1 (larger suffixes are already and correctly accepted by qnew). Right now, such suffix is accepted by state t, reacheble using the c-transition from p, but t could accept strings of bigger length. We have:
+    - If len(t) = len(p)+1, then t is the suffix link we're looking for.
+    - Otherwise we need to split of t a new state t' which will accept the strings accepted by t which have length <= len(p)+1. We copy all transitions and suffix link of t to t' but set len(t') = len(p)+1 and set link(qnew) = link(t) = t'. Finally we need to make t' actually accept the strings we want it to accept, for this we can jumo over the suffix links from p while the c-transition from the current state leads to t, changing it to point at t'.
+
+
+1. Number of distinct substrings:
+    Simply the sum over all states q of len(q)-len(link(q))
+
+To prove:
+Each leaf in the suffix link tree (states for which doesn't exist links pointing to them) corresponds to a prefix of S

@@ -36,6 +36,10 @@ void _scan( long long &x ) { scanf("%lld",&x); }
 void _scan( double &x ) { scanf("%lf",&x); }
 void _scan( char &x ) { scanf(" %c",&x); }
 void _scan( char *x ) { scanf("%s",x); }
+template<typename T>
+void _scan( vector<T> &v ){
+	for(int i=0; i<(int)v.size(); i++) _scan(v[i]);
+}
 void scan() {}
 template<typename T, typename... U>
 void scan( T& head, U&... tail ) { _scan(head); scan(tail...);}
